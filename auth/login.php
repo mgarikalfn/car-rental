@@ -40,9 +40,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user_email'] = $user['email'];
                 $_SESSION['user_role'] = $user['role'];
 
-                // Redirect based on role
-                header("Location: ../" . strtolower($user['role']) . "/dashboard.php");
-                exit;
+                
+              // Redirect based on role
+                switch ($user['role']) {
+                    case 'Customer':
+                        header("Location: ../dashboard/customer_dashboard.php");
+                        exit;
+                    case 'Owner':
+                        header("Location: ../dashboard/owner_dashboard.php");
+                        exit;
+                    case 'Admin':
+                        header("Location: ../dashboard/admin_dashboard.php");
+                        exit;
+                    default:
+                        // If role exists but doesn't match the cases above
+                        header("Location: login.php?error=invalid");
+                        exit;
+                }
             }
         }
         
