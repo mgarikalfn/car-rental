@@ -161,7 +161,7 @@ if (!$car) {
 
             <h4 class="fw-bold mb-3">Vehicle Description</h4>
             <p class="text-muted lead mb-5" style="font-size: 1.1rem; line-height: 1.8;">
-                ?= nl2br(htmlspecialchars($car['description'])) ?>
+                <?= nl2br(htmlspecialchars($car['description'])) ?>
             </p>
         </div>
 

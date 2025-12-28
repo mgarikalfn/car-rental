@@ -5,7 +5,10 @@ require_once "../config/db.php";
 // Initialize variables
 $loginError = "";
 $email = "";
-
+ if (isset($_SESSION['user_id']) && $_SESSION['user_id']!= null) {
+    header("Location: ../dashboard/customer_dashboard.php");
+    exit();
+} 
 // 1. Check if an error was passed via the URL (GET)
 if (isset($_GET['error'])) {
     if ($_GET['error'] == 'invalid') {
