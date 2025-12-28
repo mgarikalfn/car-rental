@@ -1,0 +1,156 @@
+/* GENERAL RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  background-color: #f8f9fa;
+  line-height: 1.6;
+}
+
+/* HEADER */
+header nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.nav__logo a {
+  font-family: "Syncopate", sans-serif;
+  font-weight: 700;
+  letter-spacing: -2px;
+  color: #15191d;
+  text-decoration: none;
+  font-size: 1.5rem;
+}
+
+.nav__links {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+}
+
+.nav__links a {
+  text-decoration: none;
+  color: #15191d;
+  font-weight: 500;
+}
+
+.nav__btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav__btn .btn {
+  background-color: #15191d;
+  color: #fff;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.3rem;
+  cursor: pointer;
+}
+
+.nav__btn .btn:hover {
+  background-color: #f5b754;
+  color: #15191d;
+}
+
+/* SECTION HEADERS */
+.section__container {
+  padding: 3rem 2rem;
+}
+
+.section__header {
+  text-align: center;
+  font-size: 2rem;
+  color: #15191d;
+  margin-bottom: 2rem;
+}
+
+/* DASHBOARD CARDS */
+.range__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.range__card {
+  background-color: #fff;
+  border-radius: 0.8rem;
+  padding: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.range__card h4 {
+  margin-bottom: 1rem;
+  color: #15191d;
+}
+
+.range__card a {
+  color: #f5b754;
+  font-size: 1.2rem;
+  text-decoration: none;
+}
+
+/* FOOTER */
+footer {
+  background-color: #15191d;
+  color: #fff;
+  padding: 3rem 2rem 1rem;
+}
+
+footer h4 {
+  margin-bottom: 1rem;
+}
+
+footer ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+footer ul li {
+  margin-bottom: 0.5rem;
+}
+
+footer a {
+  color: #fff;
+  text-decoration: none;
+}
+
+footer .footer__bar {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+/* FORM ELEMENTS */
+input, select, button {
+  font-family: "Poppins", sans-serif;
+}
+
+/* BUTTONS */
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.3rem;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: #15191d;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: #f5b754;
+  color: #15191d;
+}
