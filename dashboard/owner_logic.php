@@ -40,8 +40,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_car'])) {
     $description = trim($_POST['description']);
     $price_per_day = trim($_POST['price_per_day']);
     $is_available = isset($_POST['is_available']) ? 1 : 0;
+    $seats = (int)$_POST['seats']; // Capture seats
 
-    // --- Data Validation ---
+    // Validation
+    if (empty($seats) || $seats <= 0) {
+        $errors['seats'] = "Please specify number of seats.";
+    }
+
+
     if (empty($car_name)) {
         $errors['car_name'] = "Car model name is required.";
     } elseif (!preg_match("/^[a-zA-Z0-9 ]+$/", $car_name)) {
@@ -84,9 +90,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_car'])) {
         $upload_path = "../assets/" . $imageName;
 
         if (move_uploaded_file($_FILES['image']['tmp_name'], $upload_path)) {
-            $stmt = $conn->prepare("INSERT INTO cars (owner_id, car_name, category, description, price_per_day, image, is_available) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("isssdsi", $owner_id, $car_name, $category, $description, $price_per_day, $imageName, $is_available);
-
+            $stmt = $conn->prepare("INSERT INTO cars (owner_id, car_name, category, seats, description, price_per_day, image, is_available) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("isssdisi", $owner_id, $car_name, $category, $seats, $description, $price_per_day, $imageName, $is_available);
             if ($stmt->execute()) {
                 $success = "Excellent! Your vehicle has been added to the fleet.";
                 // Clear form fields on success
