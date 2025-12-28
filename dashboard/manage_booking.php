@@ -45,5 +45,26 @@ if ($action === 'approve') {
     $upd->bind_param("i", $booking_id);
     $upd->execute();
     header("Location: owner_dashboard.php?msg=rejected");
+}elseif ($action === 'return') {
+    $conn->begin_transaction();
+    try {
+        // 1. Update booking status to 'completed'
+        $upd_booking = $conn->prepare("UPDATE bookings SET status = 'completed' WHERE id = ?");
+        $upd_booking->bind_param("i", $booking_id);
+        $upd_booking->execute();
+
+        // 2. Set the car back to AVAILABLE (1)
+        $upd_car = $conn->prepare("UPDATE cars SET is_available = 1 WHERE id = ?");
+        $upd_car->bind_param("i", $car_id);
+        $upd_car->execute();
+
+        $conn->commit();
+        header("Location: owner_dashboard.php?msg=returned");
+        exit;
+    } catch (Exception $e) {
+        $conn->rollback();
+        header("Location: owner_dashboard.php?msg=error");
+        exit;
+    }
 }
 ?>

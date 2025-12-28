@@ -1,6 +1,7 @@
 <?php include 'owner_logic.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,7 +17,10 @@
             --soft-bg: #f8f9fa;
         }
 
-        body { background-color: var(--soft-bg); font-family: 'Inter', sans-serif; }
+        body {
+            background-color: var(--soft-bg);
+            font-family: 'Inter', sans-serif;
+        }
 
         /* Stats Cards */
         .stat-card {
@@ -24,10 +28,14 @@
             border: none;
             border-radius: 15px;
             padding: 25px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
             transition: 0.3s;
         }
-        .stat-card:hover { transform: translateY(-5px); }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
         .stat-icon {
             width: 50px;
             height: 50px;
@@ -47,6 +55,7 @@
             border-radius: 10px;
             transition: 0.3s;
         }
+
         .nav-pills-custom .nav-link.active {
             background-color: var(--dark-bg);
             color: var(--primary-gold);
@@ -57,18 +66,31 @@
             background: white;
             border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
         }
+
         .car-thumb-list {
             width: 60px;
             height: 45px;
             object-fit: cover;
             border-radius: 6px;
         }
-        .badge-pending { background: #fff3cd; color: #856404; }
-        .badge-approved { background: #d1e7dd; color: #0f5132; }
-        .badge-rejected { background: #f8d7da; color: #842029; }
-        
+
+        .badge-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-approved {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .badge-rejected {
+            background: #f8d7da;
+            color: #842029;
+        }
+
         .action-btn {
             width: 35px;
             height: 35px;
@@ -80,6 +102,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <header class="bg-white border-bottom sticky-top">
@@ -157,17 +180,25 @@
                                             <td class="fw-bold text-dark">$<?= number_format($b['total_price'], 2) ?></td>
                                             <td><span class="badge rounded-pill px-3 py-2 badge-<?= $b['status'] ?>"><?= ucfirst($b['status']) ?></span></td>
                                             <td class="text-end">
-                                                <?php if($b['status'] == 'pending'): ?>
-                                                    <a href="update_booking.php?id=<?= $b['id'] ?>&action=approve" class="btn btn-sm btn-success rounded-pill px-3 me-1">Approve</a>
+                                                <?php if ($b['status'] == 'pending'): ?>
+                                                    <a href="update_booking.php?id=<?= $b['id'] ?>&action=approve" class="btn btn-sm btn-success rounded-pill px-3">Approve</a>
                                                     <a href="update_booking.php?id=<?= $b['id'] ?>&action=reject" class="btn btn-sm btn-outline-danger rounded-pill px-3">Reject</a>
+
+                                                <?php elseif ($b['status'] == 'approved'): ?>
+                                                    <a href="update_booking.php?id=<?= $b['id'] ?>&action=return" class="btn btn-sm btn-primary rounded-pill px-3">
+                                                        <i class="ri-car-line me-1"></i> Mark as Returned
+                                                    </a>
+
                                                 <?php else: ?>
-                                                    <i class="ri-checkbox-circle-fill text-success fs-5"></i>
+                                                    <span class="text-muted small italic">No further actions</span>
                                                 <?php endif; ?>
                                             </td>
                                         </tr>
                                     <?php endwhile; ?>
                                 <?php else: ?>
-                                    <tr><td colspan="6" class="text-center py-5 text-muted">No booking requests found.</td></tr>
+                                    <tr>
+                                        <td colspan="6" class="text-center py-5 text-muted">No booking requests found.</td>
+                                    </tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>
@@ -205,7 +236,11 @@
                                 <input type="hidden" name="add_car">
                                 <div class="row g-3">
                                     <div class="col-md-12"><label class="form-label small fw-bold">CAR NAME</label><input type="text" name="car_name" class="form-control bg-light border-0 py-3 rounded-3" placeholder="e.g. Tesla Model S" required></div>
-                                    <div class="col-md-6"><label class="form-label small fw-bold">CATEGORY</label><select name="category" class="form-select bg-light border-0 py-3 rounded-3" required><option value="Luxury">Luxury</option><option value="SUV">SUV</option><option value="Sports">Sports</option></select></div>
+                                    <div class="col-md-6"><label class="form-label small fw-bold">CATEGORY</label><select name="category" class="form-select bg-light border-0 py-3 rounded-3" required>
+                                            <option value="Luxury">Luxury</option>
+                                            <option value="SUV">SUV</option>
+                                            <option value="Sports">Sports</option>
+                                        </select></div>
                                     <div class="col-md-3"><label class="form-label small fw-bold">SEATS</label><input type="number" name="seats" class="form-control bg-light border-0 py-3 rounded-3" required></div>
                                     <div class="col-md-3"><label class="form-label small fw-bold">DAILY PRICE</label><input type="number" name="price_per_day" class="form-control bg-light border-0 py-3 rounded-3" required></div>
                                     <div class="col-md-12"><label class="form-label small fw-bold">DESCRIPTION</label><textarea name="description" class="form-control bg-light border-0 rounded-3" rows="3"></textarea></div>
@@ -219,7 +254,17 @@
             </div>
         </div>
     </main>
-
+    <?php if (isset($_GET['msg'])): ?>
+        <div class="alert alert-info alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+            <?php
+            if ($_GET['msg'] == 'approved') echo "Booking has been <strong>Approved</strong>. Car is now marked as Rented.";
+            if ($_GET['msg'] == 'rejected') echo "Booking has been <strong>Rejected</strong>.";
+            if ($_GET['msg'] == 'error') echo "An error occurred. Please try again.";
+            ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
