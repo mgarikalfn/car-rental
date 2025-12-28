@@ -46,7 +46,7 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
             $conn->query("UPDATE bookings SET status = 'approved' WHERE id = $booking_id");
             // 2. Set the car as unavailable for further bookings
             $conn->query("UPDATE cars SET is_available = 0 WHERE id = $car_id");
-            
+
             $conn->commit();
             $_SESSION['msg'] = "Booking approved and car status updated!";
         } catch (Exception $e) {
@@ -94,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_car'])) {
             $stmt->bind_param("isssdisi", $owner_id, $car_name, $category, $seats, $description, $price_per_day, $imageName, $is_available);
             if ($stmt->execute()) {
                 $success = "Vehicle added to fleet!";
-                $car_name = $category = $description = $price_per_day = ""; 
+                $car_name = $category = $description = $price_per_day = "";
             } else {
                 $errors['db'] = "Database error.";
             }
@@ -103,9 +103,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_car'])) {
 }
 
 // 5. FETCH STATS (FOR DASHBOARD OVERVIEW)
+// Update your revenue calculation to this:
 $stats_sql = "SELECT 
     COUNT(id) as total_bookings,
-    SUM(CASE WHEN status = 'approved' THEN total_price ELSE 0 END) as total_revenue,
+    SUM(CASE WHEN status IN ('approved', 'completed') THEN total_price ELSE 0 END) as total_revenue,
     (SELECT COUNT(*) FROM cars WHERE owner_id = ?) as total_cars
     FROM bookings b
     WHERE b.car_id IN (SELECT id FROM cars WHERE owner_id = ?)";
@@ -117,11 +118,11 @@ $stats = $s_stmt->get_result()->fetch_assoc();
 // 6. FETCH FLEET & BOOKINGS
 $cars_result = $conn->query("SELECT * FROM cars WHERE owner_id = $owner_id ORDER BY created_at DESC");
 
-$bookings_sql = "SELECT b.*, c.car_name, u.name as customer_name 
+$booking_sql = "SELECT b.*, c.car_name, u.name as customer_name 
                 FROM bookings b 
                 JOIN cars c ON b.car_id = c.id 
                 JOIN users u ON b.customer_id = u.id 
-                WHERE c.owner_id = $owner_id 
+                WHERE c.owner_id = ? 
+                AND b.status != 'cancelled' 
                 ORDER BY b.created_at DESC";
 $bookings_result = $conn->query($bookings_sql);
-?>

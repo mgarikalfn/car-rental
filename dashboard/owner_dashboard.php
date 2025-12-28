@@ -91,6 +91,13 @@
             color: #842029;
         }
 
+        /* Add this to your style tag */
+        .badge-completed {
+            background-color: #e2e3e5;
+            color: #41464b;
+            border: 1px solid #d3d6d8;
+        }
+
         .action-btn {
             width: 35px;
             height: 35px;

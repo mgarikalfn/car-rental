@@ -61,21 +61,40 @@ if ($action === 'approve') {
         header("Location: owner_dashboard.php?msg=error");
         exit;
     }
-} 
-
-elseif ($action === 'reject') {
+} elseif ($action === 'reject') {
     $upd_reject = $conn->prepare("UPDATE bookings SET status = 'rejected' WHERE id = ?");
     $upd_reject->bind_param("i", $booking_id);
-    
+
     if ($upd_reject->execute()) {
         header("Location: owner_dashboard.php?msg=rejected");
     } else {
         header("Location: owner_dashboard.php?msg=error");
     }
     exit;
-}
+} elseif ($action === 'return') {
+    $conn->begin_transaction();
+    try {
+        // 1. Get the car_id for this specific booking
+        $stmt = $conn->prepare("SELECT car_id FROM bookings WHERE id = ?");
+        $stmt->bind_param("i", $booking_id);
+        $stmt->execute();
+        $car_id = $stmt->get_result()->fetch_assoc()['car_id'];
 
-else {
+        // 2. Set booking to completed
+        $conn->query("UPDATE bookings SET status = 'completed' WHERE id = $booking_id");
+
+        // 3. Set car back to Available (1)
+        $conn->query("UPDATE cars SET is_available = 1 WHERE id = $car_id");
+
+        $conn->commit();
+        header("Location: owner_dashboard.php?msg=returned");
+        exit;
+    } catch (Exception $e) {
+        $conn->rollback();
+        header("Location: owner_dashboard.php?msg=error");
+        exit;
+    }
+} else {
     header("Location: owner_dashboard.php");
     exit;
 }
