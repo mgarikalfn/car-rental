@@ -5,11 +5,11 @@ require_once "../config/db.php";
 // Initialize variables
 $loginError = "";
 $email = "";
- if (isset($_SESSION['user_id']) && $_SESSION['user_id']!= null) {
+if (isset($_SESSION['user_id']) && $_SESSION['user_id']!= null) {
     header("Location: ../dashboard/customer_dashboard.php");
     exit();
 } 
-// 1. Check if an error was passed via the URL (GET)
+
 if (isset($_GET['error'])) {
     if ($_GET['error'] == 'invalid') {
         $loginError = "Invalid email or password.";
@@ -23,7 +23,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
 
     if (empty($email) || empty($password)) {
-        // Redirect to clear POST data
         header("Location: login.php?error=required");
         exit;
     } else {
@@ -35,35 +34,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($result->num_rows === 1) {
             $user = $result->fetch_assoc();
-            
             if (password_verify($password, $user['password'])) {
-                // Store user credentials in Session
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_name'] = $user['name'];
                 $_SESSION['user_email'] = $user['email'];
                 $_SESSION['user_role'] = $user['role'];
 
-                
-              // Redirect based on role
                 switch ($user['role']) {
-                    case 'Customer':
-                        header("Location: ../dashboard/customer_dashboard.php");
-                        exit;
-                    case 'Owner':
-                        header("Location: ../dashboard/owner_dashboard.php");
-                        exit;
-                    case 'Admin':
-                        header("Location: ../dashboard/admin_dashboard.php");
-                        exit;
-                    default:
-                        // If role exists but doesn't match the cases above
-                        header("Location: login.php?error=invalid");
-                        exit;
+                    case 'Customer': header("Location: ../dashboard/customer_dashboard.php"); exit;
+                    case 'Owner': header("Location: ../dashboard/owner_dashboard.php"); exit;
+                    case 'Admin': header("Location: ../dashboard/admin_dashboard.php"); exit;
+                    default: header("Location: login.php?error=invalid"); exit;
                 }
             }
         }
-        
-        // If we reach here, login failed. Redirect to clear POST data.
         $stmt->close();
         $conn->close();
         header("Location: login.php?error=invalid");
@@ -81,77 +65,111 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
 <style>
-body { font-family: "Poppins", sans-serif; background-color: #f8f9fa; }
-.brand { font-family: "Syncopate", sans-serif; font-weight: 700; letter-spacing: -2px; }
-.btn-primary { background-color: #15191d; border: none; }
-.btn-primary:hover { background-color: #f5b754; color: #15191d; }
-.login-card { border-radius: 1rem; overflow: hidden; }
-.login-image { background: url("../assets/auth-car.png") center/cover no-repeat; min-height: 100%; }
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+    
+    body { font-family: "Poppins", sans-serif; background-color: #f0f2f5; }
+    .brand { font-weight: 800; letter-spacing: -1px; color: #15191d !important; }
+    .btn-primary { background-color: #15191d; border: none; transition: 0.3s; }
+    .btn-primary:hover { background-color: #f5b754; color: #15191d; transform: translateY(-2px); }
+    
+    .login-card { border: none; border-radius: 1.5rem; overflow: hidden; background: #fff; }
+    
+    /* Image Side Styling */
+    .login-image { 
+        /* You can replace this URL with your local ../assets/auth-car.png */
+        background: linear-gradient(rgba(21, 25, 29, 0.4), rgba(21, 25, 29, 0.4)), 
+                    url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=1000'); 
+        background-size: cover; 
+        background-position: center; 
+        min-height: 100%; 
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 40px;
+        color: white;
+    }
 
-/* Fixed Password Toggle Positioning */
-.password-container { 
-    position: relative; 
-}
-.password-toggle { 
-    cursor: pointer; 
-    position: absolute; 
-    right: 12px; 
-    /* Centers icon vertically inside the input, adjusting for the label height */
-    top: 38px; 
-    z-index: 10;
-    color: #6c757d;
-    font-size: 1.2rem;
-}
+    .password-container { position: relative; }
+    .password-toggle { 
+        cursor: pointer; 
+        position: absolute; 
+        right: 15px; 
+        top: 38px; 
+        z-index: 10;
+        color: #6c757d;
+    }
+
+    .form-control { border-radius: 0.8rem; padding: 0.75rem 1rem; border: 1px solid #e0e0e0; }
+    .form-control:focus { box-shadow: 0 0 0 0.25 margin-bottom: 5px; rem rgba(245, 183, 84, 0.25); border-color: #f5b754; }
 </style>
 </head>
 <body>
-<nav class="navbar navbar-light bg-white shadow-sm fixed-top">
+
+<nav class="navbar navbar-light bg-transparent fixed-top pt-4">
   <div class="container">
-    <a class="navbar-brand brand" href="../index.php">RENTAL</a>
+    <a class="navbar-brand brand fs-3" href="../index.php">RENTAL<span class="text-warning">.</span></a>
   </div>
 </nav>
 
 <div class="container d-flex align-items-center justify-content-center" style="min-height:100vh;">
   <div class="row w-100 justify-content-center">
-    <div class="col-lg-8">
+    <div class="col-lg-10">
       <div class="card login-card shadow-lg">
         <div class="row g-0">
           <div class="col-md-6 d-none d-md-block">
-            <div class="login-image"></div>
+            <div class="login-image">
+                <h1 class="fw-bold display-5">Welcome Back.</h1>
+                <p class="lead opacity-75">The road is waiting for you. Log in to manage your luxury fleet or book your next journey.</p>
+                <div class="mt-4">
+                    <span class="badge rounded-pill bg-warning text-dark px-3 py-2">Premium Experience</span>
+                </div>
+            </div>
           </div>
-          <div class="col-md-6 p-5">
-            <h2 class="fw-bold mb-2">Login</h2>
-            <p class="text-muted mb-4">Access your car rental account</p>
+          
+          <div class="col-md-6 p-5 bg-white">
+            <div class="mb-5">
+                <h2 class="fw-bold text-dark">Sign In</h2>
+                <p class="text-muted">Enter your credentials to continue</p>
+            </div>
 
             <?php if (!empty($loginError)): ?>
-                <div class="alert alert-danger alert-dismissible fade show">
-                    <?= htmlspecialchars($loginError) ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm">
+                    <i class="ri-error-warning-line me-2"></i><?= htmlspecialchars($loginError) ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             <?php endif; ?>
 
             <form action="login.php" method="POST">
-              <div class="mb-3">
-                <label class="form-label"><i class="ri-mail-line me-1"></i>Email</label>
-                <input type="email" name="email" class="form-control" required>
+              <div class="mb-4">
+                <label class="form-label fw-600">Email Address</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i class="ri-mail-line"></i></span>
+                    <input type="email" name="email" class="form-control bg-light border-0" placeholder="name@example.com" required>
+                </div>
               </div>
 
-              <div class="mb-3 password-container">
-                <label class="form-label"><i class="ri-lock-line me-1"></i>Password</label>
-                <input type="password" name="password" class="form-control" id="password" required>
-                <i class="ri-eye-line password-toggle" id="togglePassword"></i>
+              <div class="mb-4 password-container">
+                <label class="form-label fw-600">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i class="ri-lock-line"></i></span>
+                    <input type="password" name="password" class="form-control bg-light border-0" id="password" placeholder="••••••••" required>
+                    <i class="ri-eye-line password-toggle" id="togglePassword"></i>
+                </div>
               </div>
 
-              <div class="d-grid">
-                <button type="submit" class="btn btn-primary w-100 py-2"><i class="ri-login-box-line me-1"></i> Login</button>
+             
+
+              <div class="d-grid mb-4">
+                <button type="submit" class="btn btn-primary py-3 fw-bold rounded-pill shadow">
+                    LOG IN <i class="ri-arrow-right-line ms-2"></i>
+                </button>
               </div>
 
-              <div class="text-center mt-3">
-                <span>Don't have an account?</span><br>
-                <a href="register.php">Register</a>
+              <div class="text-center">
+                <span class="text-muted small">New to Rental?</span>
+                <a href="register.php" class="small text-dark fw-bold text-decoration-none ms-1">Create Account</a>
               </div>
             </form>
-
           </div>
         </div>
       </div>
