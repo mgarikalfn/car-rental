@@ -29,15 +29,30 @@ $categories = array_unique(array_column($cars, 'category'));
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/styles.css">
     <style>
+        :root {
+            --primary-gold: #f5b754;
+            --dark-bg: #15191d;
+        }
+
+        /* Navbar Styling */
+        header.dashboard-nav {
+            background-color: white;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
         .dashboard-header {
             background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('../assets/hero-bg.jpg');
             background-size: cover;
             background-position: center;
             color: white;
-            padding: 80px 0;
+            padding: 60px 0 100px;
             border-radius: 0 0 30px 30px;
             margin-bottom: 50px;
         }
+
         .search-box {
             max-width: 600px;
             margin: -40px auto 40px;
@@ -45,8 +60,11 @@ $categories = array_unique(array_column($cars, 'category'));
             padding: 10px;
             border-radius: 50px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 10;
         }
         .search-box input { border: none; outline: none; padding-left: 20px; }
+        .search-box input:focus { box-shadow: none; }
         
         .filter__btn {
             padding: 0.6rem 1.2rem;
@@ -56,35 +74,55 @@ $categories = array_unique(array_column($cars, 'category'));
             cursor: pointer;
             transition: 0.3s;
         }
-        .filter__btn.active { background: #f5b754; border-color: #f5b754; font-weight: bold; }
+        .filter__btn.active { background: var(--primary-gold); border-color: var(--primary-gold); font-weight: bold; }
         
-        /* Layout Fixes */
         .btn__group { display: flex; gap: 10px; margin-top: 1rem; }
         .view__btn { flex: 1; border-radius: 8px; font-weight: 600; text-align: center; padding: 10px; text-decoration: none; }
-        .btn-main { background: #15191d; color: white; }
-        .btn-accent { background: #f5b754; color: #15191d; border: none; }
-        .btn-accent:hover { background: #15191d; color: white; }
+        .btn-main { background: var(--dark-bg); color: white; }
+        .btn-accent { background: var(--primary-gold); color: var(--dark-bg); border: none; }
+        .btn-accent:hover { background: var(--dark-bg); color: white; }
         
         .hidden { display: none; }
     </style>
 </head>
 <body class="bg-light">
 
+<header class="dashboard-nav">
+    <nav class="container d-flex justify-content-between align-items-center py-3">
+        <div class="nav__logo fw-bold fs-4">
+            <a href="customer_dashboard.php" class="text-dark text-decoration-none">RENTAL <span class="text-warning">FLEET</span></a>
+        </div>
+        
+        <ul class="nav__links d-none d-md-flex list-unstyled m-0 gap-4">
+            <li><a href="customer_dashboard.php" class="text-dark text-decoration-none fw-bold">Explore</a></li>
+            <li><a href="my_bookings.php" class="text-muted text-decoration-none">My Bookings</a></li>
+        </ul>
+
+        <div class="d-flex align-items-center">
+            <div class="text-end me-3 d-none d-sm-block">
+                <p class="mb-0 small fw-bold"><?= htmlspecialchars($_SESSION['user_name']) ?></p>
+                <p class="mb-0 text-muted small">Customer Account</p>
+            </div>
+            <a href="../auth/logout.php" class="btn btn-outline-danger btn-sm rounded-pill px-3">Logout</a>
+        </div>
+    </nav>
+</header>
+
 <header class="dashboard-header text-center">
     <div class="container">
         <h1 class="display-4 fw-bold">Hello, <?= explode(' ', $_SESSION['user_name'])[0] ?>!</h1>
-        <p class="lead">Where would you like to go today?</p>
+        <p class="lead">Select the perfect ride for your next journey.</p>
     </div>
 </header>
 
 <div class="container">
     <div class="search-box d-flex align-items-center">
         <i class="ri-search-line fs-4 ms-3 text-muted"></i>
-        <input type="text" id="carSearch" class="form-control" placeholder="Search car name..." onkeyup="searchCars()">
+        <input type="text" id="carSearch" class="form-control" placeholder="Search by car name (e.g. BMW)..." onkeyup="searchCars()">
     </div>
 
-    <div class="d-flex justify-content-center gap-2 mb-5">
-        <button class="filter__btn active" onclick="filterCars('all', this)">All</button>
+    <div class="d-flex justify-content-center flex-wrap gap-2 mb-5">
+        <button class="filter__btn active" onclick="filterCars('all', this)">All Vehicles</button>
         <?php foreach($categories as $cat): ?>
             <button class="filter__btn" onclick="filterCars('<?= $cat ?>', this)"><?= $cat ?></button>
         <?php endforeach; ?>
@@ -107,7 +145,7 @@ $categories = array_unique(array_column($cars, 'category'));
                 
                 <div class="btn__group">
                     <a href="car_details.php?id=<?= $car['id'] ?>" class="view__btn btn-main">Details</a>
-                    <button class="view__btn btn-accent" data-bs-toggle="modal" data-bs-target="#quickBook<?= $car['id'] ?>">Book</button>
+                    <button class="view__btn btn-accent" data-bs-toggle="modal" data-bs-target="#quickBook<?= $car['id'] ?>">Book Now</button>
                 </div>
             </div>
         </div>
@@ -127,11 +165,11 @@ $categories = array_unique(array_column($cars, 'category'));
                             <input type="hidden" name="car_id" value="<?= $car['id'] ?>">
                             <div class="row g-3">
                                 <div class="col-6 text-start">
-                                    <label class="small fw-bold">PICKUP</label>
+                                    <label class="small fw-bold">PICKUP DATE</label>
                                     <input type="date" name="start_date" class="form-control" required min="<?= date('Y-m-d') ?>">
                                 </div>
                                 <div class="col-6 text-start">
-                                    <label class="small fw-bold">RETURN</label>
+                                    <label class="small fw-bold">RETURN DATE</label>
                                     <input type="date" name="end_date" class="form-control" required min="<?= date('Y-m-d', strtotime('+1 day')) ?>">
                                 </div>
                             </div>
@@ -148,31 +186,23 @@ $categories = array_unique(array_column($cars, 'category'));
 </div>
 
 <footer class="mt-5 py-5 bg-dark text-white text-center">
-    <p>&copy; 2024 RENTAL Fleet Management. All rights reserved.</p>
+    <p class="mb-0">&copy; 2024 RENTAL Fleet Management. All rights reserved.</p>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Search Function
     function searchCars() {
         let input = document.getElementById('carSearch').value.toLowerCase();
         let cards = document.querySelectorAll('.range__card');
-        
         cards.forEach(card => {
             let name = card.getAttribute('data-name');
-            if(name.includes(input)) {
-                card.classList.remove('hidden');
-            } else {
-                card.classList.add('hidden');
-            }
+            card.classList.toggle('hidden', !name.includes(input));
         });
     }
 
-    // Filter Function
     function filterCars(category, btn) {
         document.querySelectorAll('.filter__btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        
         let cards = document.querySelectorAll('.range__card');
         cards.forEach(card => {
             if (category === 'all' || card.getAttribute('data-category') === category) {

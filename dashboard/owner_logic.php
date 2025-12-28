@@ -115,9 +115,12 @@ $s_stmt->bind_param("ii", $owner_id, $owner_id);
 $s_stmt->execute();
 $stats = $s_stmt->get_result()->fetch_assoc();
 
-// 6. FETCH FLEET & BOOKINGS
+/// 6. FETCH FLEET & BOOKINGS
+
+// Fleet Query: This is safe because $owner_id is an integer from the session
 $cars_result = $conn->query("SELECT * FROM cars WHERE owner_id = $owner_id ORDER BY created_at DESC");
 
+// Booking Query: MUST use prepare/bind_param because of the '?' placeholder
 $booking_sql = "SELECT b.*, c.car_name, u.name as customer_name 
                 FROM bookings b 
                 JOIN cars c ON b.car_id = c.id 
@@ -125,4 +128,8 @@ $booking_sql = "SELECT b.*, c.car_name, u.name as customer_name
                 WHERE c.owner_id = ? 
                 AND b.status != 'cancelled' 
                 ORDER BY b.created_at DESC";
-$bookings_result = $conn->query($bookings_sql);
+
+$b_stmt = $conn->prepare($booking_sql);
+$b_stmt->bind_param("i", $owner_id);
+$b_stmt->execute();
+$bookings_result = $b_stmt->get_result(); // This gives you the result object for your while/foreach loop
