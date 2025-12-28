@@ -15,257 +15,173 @@ $sql = "SELECT * FROM cars WHERE is_available = 1 ORDER BY id DESC";
 $result = $conn->query($sql);
 $cars = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 
-// Get unique categories for the filter buttons
+// Get unique categories for filter buttons
 $categories = array_unique(array_column($cars, 'category'));
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer Dashboard | RENTAL</title>
-    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/styles.css">
-
     <style>
-        /* Filter Styles */
-        .filter__container {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-bottom: 3rem;
-            flex-wrap: wrap;
+        .dashboard-header {
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('../assets/hero-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 80px 0;
+            border-radius: 0 0 30px 30px;
+            margin-bottom: 50px;
         }
-
+        .search-box {
+            max-width: 600px;
+            margin: -40px auto 40px;
+            background: white;
+            padding: 10px;
+            border-radius: 50px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .search-box input { border: none; outline: none; padding-left: 20px; }
+        
         .filter__btn {
-            padding: 0.75rem 1.5rem;
-            outline: none;
-            border: 2px solid #15191d;
-            background-color: transparent;
-            font-weight: 600;
-            border-radius: 5px;
+            padding: 0.6rem 1.2rem;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 50px;
             cursor: pointer;
             transition: 0.3s;
         }
-
-        .filter__btn.active,
-        .filter__btn:hover {
-            background-color: #f5b754;
-            border-color: #f5b754;
-        }
-
-        /* Animated Card Styles */
-        .range__grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-
-        .range__card {
-            background-color: #ffffff;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid #f1f1f1;
-        }
-
-        .range__card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
-        }
-
-        .range__card img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            transition: 0.5s;
-        }
-
-        .range__card:hover img {
-            transform: scale(1.05);
-        }
-
-        .range__details {
-            padding: 1.5rem;
-        }
-
-        .range__details h4 {
-            font-size: 1.25rem;
-            color: #15191d;
-            margin-bottom: 0.5rem;
-        }
-
-        .car__specs {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .price__tag {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #15191d;
-        }
-
-        /* Button Group Logic */
-        .btn__group {
-            display: flex;
-            gap: 10px;
-            margin-top: 1.5rem;
-        }
-
-        .view__btn {
-            display: inline-block;
-            flex: 1;
-            text-align: center;
-            padding: 0.8rem;
-            background-color: #15191d;
-            color: #ffffff;
-            text-decoration: none !important;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: 0.3s;
-            border: none;
-        }
-
-        .view__btn:hover {
-            background-color: #333;
-            color: #ffffff;
-        }
-
-        /* Specific Quick Book Style to allow hover */
-        .btn__quick {
-            background-color: #f5b754;
-            color: #15191d;
-        }
-
-        .btn__quick:hover {
-            background-color: #15191d;
-            color: #ffffff;
-        }
-
-        .hidden {
-            display: none;
-        }
+        .filter__btn.active { background: #f5b754; border-color: #f5b754; font-weight: bold; }
+        
+        /* Layout Fixes */
+        .btn__group { display: flex; gap: 10px; margin-top: 1rem; }
+        .view__btn { flex: 1; border-radius: 8px; font-weight: 600; text-align: center; padding: 10px; text-decoration: none; }
+        .btn-main { background: #15191d; color: white; }
+        .btn-accent { background: #f5b754; color: #15191d; border: none; }
+        .btn-accent:hover { background: #15191d; color: white; }
+        
+        .hidden { display: none; }
     </style>
 </head>
+<body class="bg-light">
 
-<body>
+<header class="dashboard-header text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold">Hello, <?= explode(' ', $_SESSION['user_name'])[0] ?>!</h1>
+        <p class="lead">Where would you like to go today?</p>
+    </div>
+</header>
 
-    <header>
-        <nav>
-            <div class="nav__header">
-                <div class="nav__logo"><a href="#">RENTAL</a></div>
+<div class="container">
+    <div class="search-box d-flex align-items-center">
+        <i class="ri-search-line fs-4 ms-3 text-muted"></i>
+        <input type="text" id="carSearch" class="form-control" placeholder="Search car name..." onkeyup="searchCars()">
+    </div>
+
+    <div class="d-flex justify-content-center gap-2 mb-5">
+        <button class="filter__btn active" onclick="filterCars('all', this)">All</button>
+        <?php foreach($categories as $cat): ?>
+            <button class="filter__btn" onclick="filterCars('<?= $cat ?>', this)"><?= $cat ?></button>
+        <?php endforeach; ?>
+    </div>
+
+    <div class="range__grid" id="carGrid">
+        <?php foreach($cars as $car): ?>
+        <div class="range__card" data-category="<?= $car['category'] ?>" data-name="<?= strtolower($car['car_name']) ?>">
+            <img src="../assets/<?= $car['image'] ?>" alt="car">
+            <div class="range__details">
+                <div class="d-flex justify-content-between align-items-start">
+                    <h4><?= $car['car_name'] ?></h4>
+                    <span class="badge bg-light text-dark border"><?= $car['category'] ?></span>
+                </div>
+                <div class="car__specs my-2 text-muted small">
+                    <span><i class="ri-user-line"></i> <?= $car['seats'] ?> Seats</span>
+                    <span><i class="ri-flashlight-line"></i> Automatic</span>
+                </div>
+                <div class="price__tag mt-2">$<?= number_format($car['price_per_day'], 2) ?><small>/day</small></div>
+                
+                <div class="btn__group">
+                    <a href="car_details.php?id=<?= $car['id'] ?>" class="view__btn btn-main">Details</a>
+                    <button class="view__btn btn-accent" data-bs-toggle="modal" data-bs-target="#quickBook<?= $car['id'] ?>">Book</button>
+                </div>
             </div>
-            <ul class="nav__links">
-                <li><a href="customer_dashboard.php">Home</a></li>
-                <li><a href="my_bookings.php">My Bookings</a></li>
-                <li><a href="../auth/logout.php" class="btn">Logout</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <section class="section__container">
-        <h2 class="section__header">Welcome, <?= htmlspecialchars($_SESSION['user_name']) ?></h2>
-        <p class="section__description text-center mb-5">Select a vehicle that suits your journey.</p>
-
-        <div class="filter__container">
-            <button class="filter__btn active" onclick="filterCars('all', this)">All Cars</button>
-            <?php foreach ($categories as $cat): ?>
-                <button class="filter__btn" onclick="filterCars('<?= $cat ?>', this)"><?= htmlspecialchars($cat) ?></button>
-            <?php endforeach; ?>
         </div>
 
-        <div class="range__grid">
-            <?php if (count($cars) > 0): ?>
-                <?php foreach ($cars as $car): ?>
-                    <div class="range__card" data-category="<?= htmlspecialchars($car['category']) ?>">
-                        <img src="../assets/<?= htmlspecialchars($car['image']) ?>" alt="car">
-                        <div class="range__details">
-                            <h4><?= htmlspecialchars($car['car_name']) ?></h4>
-                            <div class="car__specs">
-                                <span><i class="ri-user-line"></i> <?= $car['seats'] ?> Seats</span>
-                                <span><i class="ri-steering-2-line"></i> <?= $car['category'] ?></span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="price__tag">$<?= number_format($car['price_per_day'], 2) ?><small>/day</small></span>
-                            </div>
+        <div class="modal fade" id="quickBook<?= $car['id'] ?>" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content shadow-lg border-0" style="border-radius: 20px;">
+                    <div class="modal-header border-0 pb-0">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form action="process_booking.php" method="POST">
+                        <div class="modal-body p-4 pt-0 text-center">
+                            <img src="../assets/<?= $car['image'] ?>" class="img-fluid rounded mb-3" style="max-height: 150px;">
+                            <h4 class="fw-bold"><?= $car['car_name'] ?></h4>
+                            <p class="text-muted small mb-4">Daily Rate: $<?= number_format($car['price_per_day'], 2) ?></p>
                             
-                            <div class="btn__group">
-                                <a href="car_details.php?id=<?= $car['id'] ?>" class="view__btn">Details</a>
-                                <button class="view__btn btn__quick"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#quickBook<?= $car['id'] ?>">
-                                    Quick Book
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="modal fade" id="quickBook<?= $car['id'] ?>" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content" style="border-radius: 15px; border: none;">
-                                <div class="modal-header border-0">
-                                    <h5 class="modal-title fw-bold">Quick Reserve: <?= htmlspecialchars($car['car_name']) ?></h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <input type="hidden" name="car_id" value="<?= $car['id'] ?>">
+                            <div class="row g-3">
+                                <div class="col-6 text-start">
+                                    <label class="small fw-bold">PICKUP</label>
+                                    <input type="date" name="start_date" class="form-control" required min="<?= date('Y-m-d') ?>">
                                 </div>
-                                <form action="process_booking.php" method="POST">
-                                    <div class="modal-body">
-                                        <input type="hidden" name="car_id" value="<?= $car['id'] ?>">
-
-                                        <div class="row g-3">
-                                            <div class="col-md-6 text-start">
-                                                <label class="form-label small fw-bold">PICKUP DATE</label>
-                                                <input type="date" name="start_date" class="form-control" required min="<?= date('Y-m-d') ?>">
-                                            </div>
-                                            <div class="col-md-6 text-start">
-                                                <label class="form-label small fw-bold">RETURN DATE</label>
-                                                <input type="date" name="end_date" class="form-control" required min="<?= date('Y-m-d', strtotime('+1 day')) ?>">
-                                            </div>
-                                        </div>
-
-                                        <div class="mt-4 p-3 bg-light rounded text-center">
-                                            <span class="text-muted">Rate:</span>
-                                            <span class="fw-bold">$<?= number_format($car['price_per_day'], 2) ?> / day</span>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer border-0">
-                                        <button type="submit" class="btn btn-dark w-100 py-3 rounded-3 fw-bold">CONFIRM BOOKING</button>
-                                    </div>
-                                </form>
+                                <div class="col-6 text-start">
+                                    <label class="small fw-bold">RETURN</label>
+                                    <input type="date" name="end_date" class="form-control" required min="<?= date('Y-m-d', strtotime('+1 day')) ?>">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <p class="text-center w-100">No cars available at the moment.</p>
-            <?php endif; ?>
+                        <div class="modal-footer border-0 p-4 pt-0">
+                            <button type="submit" class="btn btn-dark w-100 py-3 rounded-pill fw-bold">Confirm Booking</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-    </section>
+        <?php endforeach; ?>
+    </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        function filterCars(category, btn) {
-            document.querySelectorAll('.filter__btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+<footer class="mt-5 py-5 bg-dark text-white text-center">
+    <p>&copy; 2024 RENTAL Fleet Management. All rights reserved.</p>
+</footer>
 
-            const cards = document.querySelectorAll('.range__card');
-            cards.forEach(card => {
-                if (category === 'all' || card.getAttribute('data-category') === category) {
-                    card.classList.remove('hidden');
-                } else {
-                    card.classList.add('hidden');
-                }
-            });
-        }
-    </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Search Function
+    function searchCars() {
+        let input = document.getElementById('carSearch').value.toLowerCase();
+        let cards = document.querySelectorAll('.range__card');
+        
+        cards.forEach(card => {
+            let name = card.getAttribute('data-name');
+            if(name.includes(input)) {
+                card.classList.remove('hidden');
+            } else {
+                card.classList.add('hidden');
+            }
+        });
+    }
+
+    // Filter Function
+    function filterCars(category, btn) {
+        document.querySelectorAll('.filter__btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        let cards = document.querySelectorAll('.range__card');
+        cards.forEach(card => {
+            if (category === 'all' || card.getAttribute('data-category') === category) {
+                card.classList.remove('hidden');
+            } else {
+                card.classList.add('hidden');
+            }
+        });
+    }
+</script>
 </body>
 </html>
