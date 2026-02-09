@@ -3,10 +3,10 @@ session_start();
 require_once "../config/db.php";
 
 // 1. Auth Guard: Ensure only logged-in users can book
-/* if (!isset($_SESSION['user_id'])) {
+ if (!isset($_SESSION['user_id'])) {
     header("Location: ../auth/login.php");
     exit;
-} */
+} 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $conn = connect();

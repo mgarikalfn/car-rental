@@ -34,4 +34,4 @@ if ($result->num_rows === 1) {
     // If they try to cancel an approved/completed booking or someone else's booking
     header("Location: my_bookings.php?msg=unauthorized");
 }
-exit;
+exit;   

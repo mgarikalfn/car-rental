@@ -3,11 +3,11 @@ session_start();
 require_once "../config/db.php";
 
 $owner_id = $_SESSION['user_id'] ?? null;
-/* if (!$owner_id || $_SESSION['user_role'] !== 'Owner') {
+if (!$owner_id || $_SESSION['user_role'] !== 'Owner') {
     header("Location: ../auth/login.php");
     exit;
 }
- */
+ 
 $conn = connect();
 $car_id = (int)$_GET['id'];
 $errors = [];

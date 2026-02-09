@@ -103,7 +103,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_car'])) {
 }
 
 // 5. FETCH STATS (FOR DASHBOARD OVERVIEW)
-// Update your revenue calculation to this:
 $stats_sql = "SELECT 
     COUNT(id) as total_bookings,
     SUM(CASE WHEN status IN ('approved', 'completed') THEN total_price ELSE 0 END) as total_revenue,

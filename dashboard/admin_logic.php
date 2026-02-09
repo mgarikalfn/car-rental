@@ -2,12 +2,12 @@
 session_start();
 require_once "../config/db.php";
 
-// 1. AUTHENTICATION GUARD
+ // 1. AUTHENTICATION GUARD
 // Only "Admin" role can enter
-/* if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'Admin') {
+ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'Admin') {
     header("Location: ../auth/login.php");
     exit;
-} */
+} 
 
 $conn = connect();
 
